@@ -17,7 +17,6 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
     :root {
-      /* Dark Theme (Zinc/OLED focus, neutral, elegant) */
       --bg: #09090B;
       --surface: #18181B;
       --surface-hover: #27272A;
@@ -25,23 +24,18 @@
       --text: #FAFAFA;
       --text-muted: #A1A1AA;
       --text-subtle: #52525B;
-      
       --accent: #FAFAFA;
       --accent-fg: #09090B;
-      
       --danger: #EF4444;
       --success: #10B981;
-      
       --radius-sm: 12px;
       --radius-md: 16px;
       --radius-lg: 24px;
       --radius-xl: 32px;
       --radius-pill: 9999px;
-      
       --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
       --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
       --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.6);
-      
       --nav-height: 72px;
       --safe-bottom: env(safe-area-inset-bottom, 20px);
       --safe-top: env(safe-area-inset-top, 20px);
@@ -55,10 +49,8 @@
       --text: #09090B;
       --text-muted: #71717A;
       --text-subtle: #D4D4D8;
-      
       --accent: #09090B;
       --accent-fg: #FAFAFA;
-      
       --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
       --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
       --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -77,7 +69,6 @@
       letter-spacing: -0.01em;
     }
 
-    /* Hide scrollbars but keep functionality */
     ::-webkit-scrollbar { display: none; }
 
     /* ── LOADER ── */
@@ -212,12 +203,30 @@
 
     /* ── FLOATING BOTTOM NAV ── */
     #bottom-nav {
-      position: fixed; bottom: var(--safe-bottom); left: 50%; transform: translateX(-50%);
-      width: calc(100% - 48px); max-width: 400px; height: 64px;
-      background: rgba(24, 24, 27, 0.75); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--border); border-radius: var(--radius-pill);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 8px;
-      z-index: 100; box-shadow: var(--shadow-float);
+      position: fixed;
+      bottom: var(--safe-bottom);
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 400px;
+      height: 64px;
+      background: rgba(24, 24, 27, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      z-index: 100;
+      box-shadow: var(--shadow-float);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #bottom-nav.hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(20px);
+      pointer-events: none;
     }
     [data-theme="light"] #bottom-nav { background: rgba(255, 255, 255, 0.85); }
     .nav-item {
@@ -356,6 +365,7 @@
   <div id="app">
     <div id="main">
 
+      <!-- ─── LOGIN SCREEN ─── -->
       <div class="screen active" id="screen-login">
         <div id="login-screen">
           <div class="hero-icon">⏳</div>
@@ -392,6 +402,7 @@
         </div>
       </div>
 
+      <!-- ─── HOME SCREEN ─── -->
       <div class="screen" id="screen-home">
         <div class="header">
           <div>
@@ -420,6 +431,7 @@
         <div id="events-grid" class="events-grid"></div>
       </div>
 
+      <!-- ─── DETAIL SCREEN ─── -->
       <div class="screen slide-in" id="screen-detail">
         <div class="detail-wrap">
           <div class="detail-cover" id="detail-bg"></div>
@@ -456,6 +468,7 @@
         </div>
       </div>
 
+      <!-- ─── FORM SCREEN ─── -->
       <div class="screen slide-in" id="screen-form">
         <div class="form-header">
           <button class="action-text" onclick="closeForm()">Cancel</button>
@@ -494,6 +507,7 @@
         </div>
       </div>
 
+      <!-- ─── JOIN SCREEN ─── -->
       <div class="screen fade-in" id="screen-join">
         <div class="form-header"><button class="action-text" onclick="closeJoin()">Back</button><span class="title">Join</span><div style="width:40px;"></div></div>
         <div class="form-body">
@@ -506,6 +520,7 @@
         </div>
       </div>
 
+      <!-- ─── SETTINGS SCREEN ─── -->
       <div class="screen fade-in" id="screen-settings">
         <div class="form-header"><button class="action-text" onclick="closeSettings()">Back</button><span class="title">Settings</span><div style="width:40px;"></div></div>
         <div class="form-body">
@@ -532,6 +547,7 @@
 
     </div>
 
+    <!-- ─── BOTTOM NAV ─── -->
     <nav id="bottom-nav">
       <button class="nav-item active" onclick="navigateTo('home')" id="nav-home">
         <svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
@@ -578,6 +594,7 @@
     let currentUser = null; let currentEvent = null; let editingId = null;
     let selectedTab = 'all'; let selectedCategory = 'all'; let formCover = null;
     let countdownTimer = null; let theme = 'dark';
+    let isLoggedIn = false;
 
     function $(id) { return document.getElementById(id); }
     function escapeHtml(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -647,18 +664,32 @@
       const t = $('toast'); t.textContent = msg; t.classList.add('show');
       clearTimeout(window.tTimer); window.tTimer = setTimeout(() => t.classList.remove('show'), 2500);
     }
+    
     function showScreen(id, t='fade-in') {
-      document.querySelectorAll('.screen').forEach(el => el.classList.remove('active', 'slide-in', 'fade-in'));
+      document.querySelectorAll('.screen').forEach(el => {
+        el.classList.remove('active', 'slide-in', 'fade-in');
+      });
       const el = $('screen-' + id);
+      if(!el) return;
       el.classList.add(t);
-      requestAnimationFrame(() => { el.classList.add('active'); el.scrollTop = 0; if(t==='slide-in') setTimeout(()=>el.classList.remove('slide-in'), 300); });
+      requestAnimationFrame(() => {
+        el.classList.add('active');
+        el.scrollTop = 0;
+        if(t === 'slide-in') {
+          setTimeout(() => el.classList.remove('slide-in'), 300);
+        }
+      });
     }
+    
     function openModal(id) { $(id).classList.add('active'); }
     function closeModal(id) { $(id).classList.remove('active'); }
+    
     function updateNav(scr) {
       document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-      if($('nav-' + scr)) $('nav-' + scr).classList.add('active');
+      const target = $('nav-' + scr);
+      if(target) target.classList.add('active');
     }
+
     function setTheme(t) { theme = t; document.documentElement.setAttribute('data-theme', t); Store.set('theme', t); }
 
     // ── AUTH ──
@@ -668,12 +699,18 @@
       $('login-form').style.display = t==='login' ? 'block' : 'none';
       $('signup-form').style.display = t==='signup' ? 'block' : 'none';
     }
+    
     function handleLogin() {
       const u = $('login-username').value.trim(), p = $('login-phrase').value.trim();
       const users = Store.get('users', {});
-      if(users[u] && users[u] === p) { currentUser = {username: u, phrase: p}; Store.set('session', currentUser); bootApp(); }
-      else showToast('Invalid credentials');
+      if(users[u] && users[u] === p) {
+        currentUser = {username: u, phrase: p}; 
+        Store.set('session', currentUser);
+        isLoggedIn = true;
+        bootApp();
+      } else showToast('Invalid credentials');
     }
+    
     function handleSignup() {
       const u = $('signup-username').value.trim();
       if(!u || u.length < 3) return showToast('Username too short');
@@ -681,17 +718,49 @@
       if(users[u]) return showToast('Username taken');
       const p = [...Array(8)].map(()=>Math.random().toString(36).slice(2,6)).join('-') + '-' + Math.floor(100+Math.random()*900);
       users[u] = p; Store.set('users', users);
-      currentUser = {username: u, phrase: p}; Store.set('session', currentUser);
-      $('recovery-key-display').textContent = p; openModal('modal-recovery'); bootApp();
+      currentUser = {username: u, phrase: p}; 
+      Store.set('session', currentUser);
+      isLoggedIn = true;
+      $('recovery-key-display').textContent = p; 
+      openModal('modal-recovery'); 
+      bootApp();
     }
-    function logout() { Store.remove('session'); currentUser = null; showScreen('login'); }
+    
+    function logout() { 
+      Store.remove('session'); 
+      currentUser = null; 
+      isLoggedIn = false;
+      updateNavVisibility();
+      showScreen('login'); 
+    }
+
+    // ── NAV VISIBILITY ──
+    function updateNavVisibility() {
+      const nav = $('bottom-nav');
+      if(isLoggedIn && currentUser) {
+        nav.classList.remove('hidden');
+      } else {
+        nav.classList.add('hidden');
+      }
+    }
 
     // ── RENDER ──
-    function filterTab(t) { selectedTab = t; document.querySelectorAll('[data-tab]').forEach(e => e.classList.toggle('active', e.dataset.tab===t)); renderEvents(); }
-    function filterCategory(c) { selectedCategory = selectedCategory === c ? 'all' : c; document.querySelectorAll('[data-cat]').forEach(e => e.classList.toggle('active', e.dataset.cat===selectedCategory)); renderEvents(); }
+    function filterTab(t) { 
+      selectedTab = t; 
+      document.querySelectorAll('[data-tab]').forEach(e => e.classList.toggle('active', e.dataset.tab===t)); 
+      renderEvents(); 
+    }
+    
+    function filterCategory(c) { 
+      selectedCategory = selectedCategory === c ? 'all' : c; 
+      document.querySelectorAll('[data-cat]').forEach(e => e.classList.toggle('active', e.dataset.cat===selectedCategory)); 
+      renderEvents(); 
+    }
     
     function renderEvents() {
       const grid = $('events-grid');
+      if(!currentUser) return;
+      
       let evts = getAllEvents(currentUser.username);
       if(selectedTab === 'my') evts = evts.filter(e => e._owned);
       if(selectedTab === 'joined') evts = evts.filter(e => e._joined);
@@ -743,9 +812,11 @@
       if(!currentEvent) return;
       const e = currentEvent; const days = getDays(e.event_date);
       
-      $('d-name').textContent = e.title; $('d-date').textContent = formatDate(e.event_date);
+      $('d-name').textContent = e.title; 
+      $('d-date').textContent = formatDate(e.event_date);
       $('d-emoji').textContent = e.emoji || '🎉';
-      $('d-days').textContent = Math.abs(days); $('d-days-label').textContent = days >= 0 ? 'DAYS TO GO' : 'DAYS AGO';
+      $('d-days').textContent = Math.abs(days); 
+      $('d-days-label').textContent = days >= 0 ? 'DAYS TO GO' : 'DAYS AGO';
       
       $('detail-bg').style.backgroundImage = e.cover_image ? `url('${e.cover_image}')` : 'none';
       $('edit-btn').style.display = e._owned ? 'block' : 'none';
@@ -758,108 +829,230 @@
       const updateCd = () => {
         const ms = new Date(e.event_date + 'T00:00:00') - Date.now();
         const abs = Math.abs(Math.floor(ms/1000));
-        $('cd-d').textContent = Math.floor(abs/86400); $('cd-h').textContent = String(Math.floor((abs%86400)/3600)).padStart(2,'0');
-        $('cd-m').textContent = String(Math.floor((abs%3600)/60)).padStart(2,'0'); $('cd-s').textContent = String(abs%60).padStart(2,'0');
+        $('cd-d').textContent = Math.floor(abs/86400); 
+        $('cd-h').textContent = String(Math.floor((abs%86400)/3600)).padStart(2,'0');
+        $('cd-m').textContent = String(Math.floor((abs%3600)/60)).padStart(2,'0'); 
+        $('cd-s').textContent = String(abs%60).padStart(2,'0');
       };
-      updateCd(); countdownTimer = setInterval(updateCd, 1000);
+      updateCd(); 
+      countdownTimer = setInterval(updateCd, 1000);
       showScreen('detail', 'slide-in');
     }
-    function closeDetail() { clearInterval(countdownTimer); showScreen('home'); }
-    function leaveEvent() { if(confirm('Leave this countdown?')) { leaveJoinedEvent(currentUser.username, currentEvent.id); closeDetail(); renderEvents(); } }
+    
+    function closeDetail() { 
+      clearInterval(countdownTimer); 
+      showScreen('home'); 
+    }
+    
+    function leaveEvent() { 
+      if(confirm('Leave this countdown?')) { 
+        leaveJoinedEvent(currentUser.username, currentEvent.id); 
+        closeDetail(); 
+        renderEvents(); 
+      } 
+    }
 
     // ── FORMS ──
     function initDatePicker() {
       const m = $('form-month'), d = $('form-day'), y = $('form-year');
       m.innerHTML = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((v,i)=>`<option value="${i}">${v}</option>`).join('');
       d.innerHTML = [...Array(31)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
-      const cy = new Date().getFullYear(); y.innerHTML = [...Array(6)].map((_,i)=>`<option value="${cy+i}">${cy+i}</option>`).join('');
+      const cy = new Date().getFullYear(); 
+      y.innerHTML = [...Array(6)].map((_,i)=>`<option value="${cy+i}">${cy+i}</option>`).join('');
     }
     
     function openCreateForm() {
-      editingId = null; $('form-title').textContent = 'Create';
-      $('form-name').value = ''; removeCover();
-      const n = new Date(); $('form-month').value = n.getMonth(); $('form-day').value = n.getDate(); $('form-year').value = n.getFullYear();
-      $('del-wrap').style.display = 'none'; showScreen('form', 'slide-in');
+      editingId = null; 
+      $('form-title').textContent = 'Create';
+      $('form-name').value = ''; 
+      removeCover();
+      const n = new Date(); 
+      $('form-month').value = n.getMonth(); 
+      $('form-day').value = n.getDate(); 
+      $('form-year').value = n.getFullYear();
+      $('del-wrap').style.display = 'none'; 
+      showScreen('form', 'slide-in');
+    }
+    
+    function editEvent() {
+      openEditForm();
     }
     
     function openEditForm() {
-      editingId = currentEvent.id; $('form-title').textContent = 'Edit';
+      if(!currentEvent) return;
+      editingId = currentEvent.id; 
+      $('form-title').textContent = 'Edit';
       $('form-name').value = currentEvent.title;
       const d = new Date(currentEvent.event_date + 'T00:00:00');
-      $('form-month').value = d.getMonth(); $('form-day').value = d.getDate(); $('form-year').value = d.getFullYear();
+      $('form-month').value = d.getMonth(); 
+      $('form-day').value = d.getDate(); 
+      $('form-year').value = d.getFullYear();
       if(currentEvent.cover_image) {
          formCover = currentEvent.cover_image;
-         $('cover-preview').src = formCover; $('cover-preview').style.display = 'block';
-         $('cover-upload').classList.add('has-img'); $('cover-remove').style.display = 'block';
+         $('cover-preview').src = formCover; 
+         $('cover-preview').style.display = 'block';
+         $('cover-upload').classList.add('has-img'); 
+         $('cover-remove').style.display = 'block';
       } else removeCover();
-      $('del-wrap').style.display = 'block'; showScreen('form', 'slide-in');
+      $('del-wrap').style.display = 'block'; 
+      showScreen('form', 'slide-in');
     }
-    function closeForm() { showScreen('home'); }
+    
+    function closeForm() { 
+      showScreen('home'); 
+    }
 
     function handleCoverUpload(e) {
-      const f = e.target.files[0]; if(!f) return;
+      const f = e.target.files[0]; 
+      if(!f) return;
       const r = new FileReader();
       r.onload = ev => { 
         formCover = ev.target.result; 
-        $('cover-preview').src = formCover; $('cover-preview').style.display = 'block';
-        $('cover-upload').classList.add('has-img'); $('cover-remove').style.display = 'block';
+        $('cover-preview').src = formCover; 
+        $('cover-preview').style.display = 'block';
+        $('cover-upload').classList.add('has-img'); 
+        $('cover-remove').style.display = 'block';
       };
       r.readAsDataURL(f);
     }
-    function removeCover() { formCover = null; $('cover-preview').style.display='none'; $('cover-upload').classList.remove('has-img'); $('cover-remove').style.display='none'; $('cover-input').value=''; }
+    
+    function removeCover() { 
+      formCover = null; 
+      $('cover-preview').style.display='none'; 
+      $('cover-upload').classList.remove('has-img'); 
+      $('cover-remove').style.display='none'; 
+      $('cover-input').value=''; 
+    }
 
     function submitForm() {
-      const name = $('form-name').value.trim(); if(!name) return showToast('Name required');
+      const name = $('form-name').value.trim(); 
+      if(!name) return showToast('Name required');
       const m = parseInt($('form-month').value), d = parseInt($('form-day').value), y = parseInt($('form-year').value);
       const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       
-      const data = { title: name, event_date: ds, cover_image: formCover, emoji: ['🎉','✈️','❤️','🥂','🎂'][Math.floor(Math.random()*5)] };
+      const data = { 
+        title: name, 
+        event_date: ds, 
+        cover_image: formCover, 
+        emoji: ['🎉','✈️','❤️','🥂','🎂'][Math.floor(Math.random()*5)] 
+      };
       
-      if(editingId) { updateEvent(currentUser.username, editingId, data); showToast('Updated'); }
-      else { createEvent(currentUser.username, data); showToast('Created'); }
-      closeForm(); renderEvents();
+      if(editingId) { 
+        updateEvent(currentUser.username, editingId, data); 
+        showToast('Updated'); 
+      } else { 
+        createEvent(currentUser.username, data); 
+        showToast('Created'); 
+      }
+      closeForm(); 
+      renderEvents();
     }
+    
     function confirmDelete() {
-      if(confirm('Delete event permanently?')) { deleteEvent(currentUser.username, editingId); closeForm(); closeDetail(); renderEvents(); }
+      if(confirm('Delete event permanently?')) { 
+        deleteEvent(currentUser.username, editingId); 
+        closeForm(); 
+        closeDetail(); 
+        renderEvents(); 
+      }
     }
 
     // ── SHARE / JOIN ──
     function shareEvent() {
+      if(!currentEvent) return;
       const code = getShareCode(currentUser.username, currentEvent.id) || generateShareCode(currentUser.username, currentEvent.id);
-      $('share-code-display').textContent = code; openModal('modal-share');
+      $('share-code-display').textContent = code; 
+      openModal('modal-share');
     }
-    function copyShareCode() { navigator.clipboard.writeText($('share-code-display').textContent); showToast('Copied'); closeModal('modal-share'); }
-    function copyRecoveryKey() { navigator.clipboard.writeText($('recovery-key-display').textContent); showToast('Copied'); closeModal('modal-recovery'); }
+    
+    function copyShareCode() { 
+      navigator.clipboard.writeText($('share-code-display').textContent); 
+      showToast('Copied'); 
+      closeModal('modal-share'); 
+    }
+    
+    function copyRecoveryKey() { 
+      navigator.clipboard.writeText($('recovery-key-display').textContent); 
+      showToast('Copied'); 
+      closeModal('modal-recovery'); 
+    }
     
     function handleJoin() {
       const c = $('join-code-input').value.trim().toUpperCase();
       if(!c) return;
-      try { const id = joinEvent(currentUser.username, c.startsWith('WF-')?c:'WF-'+c); showToast('Joined!'); $('join-code-input').value=''; closeJoin(); renderEvents(); setTimeout(()=>openDetail(id), 300); }
-      catch(e) { showToast(e.message); }
+      try { 
+        const id = joinEvent(currentUser.username, c.startsWith('WF-')?c:'WF-'+c); 
+        showToast('Joined!'); 
+        $('join-code-input').value=''; 
+        closeJoin(); 
+        renderEvents(); 
+        setTimeout(()=>openDetail(id), 300); 
+      } catch(e) { 
+        showToast(e.message); 
+      }
     }
-    function closeJoin() { showScreen('home'); updateNav('home'); }
+    
+    function closeJoin() { 
+      showScreen('home'); 
+      updateNav('home'); 
+    }
 
     // ── SETTINGS / NAVIGATION ──
-    function showRecoveryKey() { $('recovery-key-display').textContent = currentUser.phrase; openModal('modal-recovery'); }
-    function openSettings() { $('settings-username').textContent = currentUser.username; showScreen('settings'); }
-    function closeSettings() { showScreen('home'); }
+    function showRecoveryKey() { 
+      if(!currentUser) return;
+      $('recovery-key-display').textContent = currentUser.phrase; 
+      openModal('modal-recovery'); 
+    }
+    
+    function openSettings() { 
+      if(!currentUser) return;
+      $('settings-username').textContent = currentUser.username; 
+      showScreen('settings'); 
+    }
+    
+    function closeSettings() { 
+      showScreen('home'); 
+    }
     
     function navigateTo(scr) {
-      if(!currentUser) return showScreen('login');
-      if(scr === 'home') { showScreen('home'); updateNav('home'); }
-      if(scr === 'join') { showScreen('join'); updateNav('join'); }
+      if(!currentUser) {
+        showScreen('login');
+        return;
+      }
+      if(scr === 'home') { 
+        showScreen('home'); 
+        updateNav('home'); 
+      }
+      if(scr === 'join') { 
+        showScreen('join'); 
+        updateNav('join'); 
+      }
     }
 
     // ── BOOT ──
     function bootApp() {
       $('loader').classList.add('hidden');
-      if(currentUser) { showScreen('home'); updateNav('home'); renderEvents(); }
-      else showScreen('login');
+      if(currentUser) { 
+        isLoggedIn = true;
+        showScreen('home'); 
+        updateNav('home'); 
+        renderEvents(); 
+      } else {
+        isLoggedIn = false;
+        showScreen('login'); 
+      }
+      updateNavVisibility();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      setTheme(Store.get('theme', 'dark')); initDatePicker();
+      setTheme(Store.get('theme', 'dark')); 
+      initDatePicker();
       currentUser = Store.get('session', null);
+      if(currentUser) isLoggedIn = true;
+      
+      // Initial nav state
+      updateNavVisibility();
+      
       setTimeout(bootApp, 600);
     });
   </script>
