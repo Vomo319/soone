@@ -20,3 +20,6 @@ build/
 # Environment
 .env
 .env.local
+
+# Firebase config (keep secret)
+config/firebase.js
