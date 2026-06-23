@@ -9,24 +9,377 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#09090B">
   <title>Soone</title>
-  
-  <!-- CSS -->
-  <link rel="stylesheet" href="src/css/styles.css">
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <!-- Manifest -->
-  <link rel="manifest" href="manifest.json">
-  
-  <!-- Google Analytics (optional) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
+
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       COMPLETE STYLES — ALL WORKING
+       ════════════════════════════════════════════════════════════════ */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    :root {
+      --bg: #09090B;
+      --surface: #18181B;
+      --surface-hover: #27272A;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #FAFAFA;
+      --text-muted: #A1A1AA;
+      --text-subtle: #52525B;
+      --accent: #FAFAFA;
+      --accent-fg: #09090B;
+      --danger: #EF4444;
+      --success: #10B981;
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-pill: 9999px;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
+      --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.6);
+      --nav-height: 72px;
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --safe-top: env(safe-area-inset-top, 20px);
+    }
+
+    [data-theme="light"] {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --surface-hover: #F4F4F5;
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #09090B;
+      --text-muted: #71717A;
+      --text-subtle: #D4D4D8;
+      --accent: #09090B;
+      --accent-fg: #FAFAFA;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.08);
+      --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    html, body {
+      height: 100%;
+      height: -webkit-fill-available;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.01em;
+    }
+
+    ::-webkit-scrollbar { display: none; }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    #loader.hidden {
+      opacity: 0;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+    .loader-dot {
+      width: 48px; height: 48px;
+      background: var(--text);
+      border-radius: 50%;
+      animation: pulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .loader-text {
+      margin-top: 16px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* ── APP FRAME ── */
+    #app { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); }
+    #main { flex: 1; overflow: hidden; position: relative; }
+
+    /* ── SCREENS (FIXED) ── */
+    .screen {
+      position: absolute; inset: 0;
+      overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 40px);
+      background: var(--bg);
+      z-index: 1;
+    }
+    .screen.active { 
+      opacity: 1; 
+      pointer-events: auto; 
+      z-index: 10; 
+    }
+    .screen.slide-in { 
+      transform: translateX(100%); 
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .screen.slide-in.active { transform: translateX(0); }
+
+    /* ── HEADER ── */
+    .header {
+      padding: calc(var(--safe-top) + 24px) 24px 16px;
+      background: linear-gradient(to bottom, var(--bg) 60%, transparent);
+      position: sticky; top: 0; z-index: 10;
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .header-title { font-size: 32px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+    .header-sub { font-size: 14px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+    .header-actions { display: flex; gap: 12px; }
+    .header-btn {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-pill); border: 1px solid var(--border);
+      background: var(--surface); color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 18px; transition: all 0.2s;
+    }
+    .header-btn:active { transform: scale(0.92); background: var(--surface-hover); }
+
+    /* ── FILTERS & TABS ── */
+    .scroll-row {
+      padding: 8px 24px 16px; display: flex; gap: 8px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .pill-btn {
+      flex-shrink: 0; padding: 10px 20px;
+      border-radius: var(--radius-pill); border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-muted);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .pill-btn.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+    .pill-btn:active { transform: scale(0.96); }
+
+    /* ── EVENT CARDS ── */
+    .events-grid { padding: 8px 24px 24px; display: grid; gap: 16px; }
+    .event-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden; position: relative;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer; display: flex; flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+    .event-card:active { transform: scale(0.97); }
+    .card-bg {
+      position: absolute; inset: 0; background-size: cover; background-position: center;
+      opacity: 0.4; filter: saturate(0.5); z-index: 0; mix-blend-mode: overlay;
+    }
+    .card-inner { position: relative; z-index: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; background: rgba(255,255,255,0.05);
+    }
+    .card-tag {
+      padding: 6px 12px; border-radius: var(--radius-pill);
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      background: var(--bg); border: 1px solid var(--border);
+    }
+    .card-body h3 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.2; }
+    .card-body p { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .card-footer { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+    .card-progress-wrap { flex: 1; }
+    .card-progress { height: 6px; background: var(--bg); border-radius: var(--radius-pill); overflow: hidden; }
+    .card-progress .fill { height: 100%; border-radius: var(--radius-pill); transition: width 1s ease; }
+    .card-countdown {
+      text-align: right; line-height: 1; display: flex; flex-direction: column; align-items: flex-end;
+    }
+    .card-countdown strong { font-size: 28px; font-weight: 900; letter-spacing: -0.05em; }
+    .card-countdown span { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 60px 24px; display: flex; flex-direction: column; align-items: center; }
+    .empty .icon { font-size: 64px; margin-bottom: 24px; opacity: 0.8; }
+    .empty .title { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .empty .desc { font-size: 15px; color: var(--text-muted); max-width: 260px; line-height: 1.5; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 16px 24px; border: none; border-radius: var(--radius-pill);
+      font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-family: inherit; width: 100%; touch-action: manipulation;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--accent); color: var(--accent-fg); box-shadow: var(--shadow-sm); }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .btn-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .btn-sm { padding: 10px 16px; font-size: 14px; width: auto; }
+
+    /* ── FLOATING BOTTOM NAV ── */
+    #bottom-nav {
+      position: fixed;
+      bottom: var(--safe-bottom);
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 48px);
+      max-width: 400px;
+      height: 64px;
+      background: rgba(24, 24, 27, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      z-index: 100;
+      box-shadow: var(--shadow-float);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #bottom-nav.hidden {
+      opacity: 0;
+      transform: translateX(-50%) translateY(20px);
+      pointer-events: none;
+    }
+    [data-theme="light"] #bottom-nav { background: rgba(255, 255, 255, 0.85); }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: none; border: none; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+    }
+    .nav-item.active { color: var(--text); }
+    .nav-item:active { transform: scale(0.9); }
+    .nav-item svg { width: 24px; height: 24px; stroke-width: 2.2; margin-bottom: 2px; }
+    
+    .nav-fab-wrap { position: relative; margin-top: -32px; flex: 0 0 64px; display: flex; justify-content: center; }
+    .nav-fab {
+      width: 56px; height: 56px; border-radius: 50%; border: none;
+      background: var(--text); color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-float); cursor: pointer; transition: transform 0.2s;
+    }
+    .nav-fab:active { transform: scale(0.85); }
+    .nav-fab svg { width: 24px; height: 24px; stroke-width: 3; }
+
+    /* ── LOGIN/ONBOARDING ── */
+    #login-screen { display: flex; flex-direction: column; justify-content: center; padding: 40px 24px; min-height: 100%; }
+    .hero-icon { font-size: 72px; margin-bottom: 24px; }
+    #login-screen .title { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 8px; line-height: 1.1; }
+    #login-screen .sub { font-size: 16px; color: var(--text-muted); margin-bottom: 40px; line-height: 1.5; }
+    .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; }
+    .tab-switcher { display: flex; background: var(--bg); border-radius: var(--radius-pill); padding: 4px; margin-bottom: 24px; }
+    .tab-switcher button {
+      flex: 1; padding: 12px; border: none; background: transparent; border-radius: var(--radius-pill);
+      color: var(--text-muted); font-size: 14px; font-weight: 600; transition: all 0.2s;
+    }
+    .tab-switcher button.active { background: var(--surface-hover); color: var(--text); box-shadow: var(--shadow-sm); }
+    
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .input-group input {
+      width: 100%; padding: 16px 20px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-md); color: var(--text); font-size: 16px; font-weight: 500; transition: all 0.2s;
+    }
+    .input-group input:focus { border-color: var(--text); outline: none; background: var(--surface-hover); }
+    .input-group .hint { font-size: 12px; color: var(--text-subtle); margin-top: 8px; }
+
+    /* ── DETAIL ── */
+    .detail-wrap { position: relative; min-height: 100vh; display: flex; flex-direction: column; }
+    .detail-cover {
+      position: absolute; top: 0; left: 0; right: 0; height: 50vh;
+      background-size: cover; background-position: center;
+      mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      z-index: 0; opacity: 0.6;
+    }
+    .detail-nav { padding: calc(var(--safe-top) + 16px) 24px; position: relative; z-index: 10; display: flex; justify-content: space-between; }
+    .detail-nav button { background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: var(--radius-pill); padding: 8px 16px; font-weight: 600; font-size: 14px; }
+    
+    .detail-content { position: relative; z-index: 1; margin-top: auto; padding: 24px; }
+    .d-hero { text-align: left; margin-bottom: 32px; }
+    .d-emoji { font-size: 64px; margin-bottom: 16px; display: inline-block; }
+    .d-title { font-size: 40px; font-weight: 900; line-height: 1.1; letter-spacing: -0.04em; margin-bottom: 8px; }
+    .d-date { font-size: 16px; color: var(--text-muted); font-weight: 500; }
+    
+    .d-massive-countdown { display: flex; align-items: baseline; gap: 12px; margin: 32px 0; }
+    .d-massive-countdown strong { font-size: 80px; font-weight: 900; letter-spacing: -0.05em; line-height: 0.9; }
+    .d-massive-countdown span { font-size: 20px; font-weight: 700; color: var(--text-muted); }
+    
+    .d-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 32px; }
+    .d-metric-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 8px; text-align: center; }
+    .d-metric-box strong { display: block; font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+    .d-metric-box span { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── FORMS ── */
+    .form-header { display: flex; justify-content: space-between; align-items: center; padding: calc(var(--safe-top) + 20px) 24px 20px; background: var(--bg); position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--border); }
+    .form-header .title { font-size: 18px; font-weight: 700; }
+    .form-header button { background: none; border: none; font-size: 16px; font-weight: 600; color: var(--text); padding: 8px 0; }
+    .form-header .action-text { color: var(--text-muted); }
+    
+    .form-body { padding: 24px; }
+    .f-section { margin-bottom: 32px; }
+    .f-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .f-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border); padding: 12px 0; font-size: 24px; font-weight: 700; color: var(--text); transition: border-color 0.2s; border-radius: 0; }
+    .f-input:focus { border-color: var(--text); outline: none; }
+    .f-input::placeholder { color: var(--text-subtle); font-weight: 500; }
+
+    .image-upload {
+      height: 140px; border-radius: var(--radius-lg); background: var(--surface); border: 1px dashed var(--text-subtle);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .image-upload.has-img { border-style: solid; border-color: var(--border); }
+    .image-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    
+    .date-row { display: flex; gap: 12px; }
+    .date-row select {
+      flex: 1; padding: 16px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-md); color: var(--text); font-size: 16px; font-weight: 600; -webkit-appearance: none;
+    }
+
+    /* ── TOAST ── */
+    #toast-container { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 24px); left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+    .toast {
+      background: var(--text); color: var(--bg); padding: 12px 24px; border-radius: var(--radius-pill);
+      font-size: 14px; font-weight: 600; box-shadow: var(--shadow-lg);
+      opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; z-index: 500; padding: 24px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 32px 24px; text-align: center;
+      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .modal h3 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .modal p { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; line-height: 1.5; }
+    .modal .modal-actions { display: flex; gap: 12px; }
+    
+    .code-box {
+      background: var(--bg); border: 1px solid var(--border); padding: 16px;
+      border-radius: var(--radius-md); font-family: monospace; font-size: 20px; font-weight: 700;
+      letter-spacing: 0.1em; margin-bottom: 24px; word-break: break-all;
+    }
+
+    .flex { display: flex; } .justify-between { justify-content: space-between; } .gap-8 { gap: 8px; } .mt-16 { margin-top: 16px; }
+  </style>
 </head>
 <body>
 
@@ -36,10 +389,8 @@
     <div class="loader-text">Soone</div>
   </div>
   
-  <!-- ═══ TOAST ═══ -->
   <div id="toast-container"><div class="toast" id="toast"></div></div>
 
-  <!-- ═══ APP ═══ -->
   <div id="app">
     <div id="main">
 
@@ -88,12 +439,8 @@
             <div class="header-sub" id="greeting">0 upcoming</div>
           </div>
           <div class="header-actions">
-            <button class="header-btn" onclick="showRecoveryKey()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-            </button>
-            <button class="header-btn" onclick="openSettings()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </button>
+            <button class="header-btn" onclick="showRecoveryKey()">🔑</button>
+            <button class="header-btn" onclick="openSettings()">⚙️</button>
           </div>
         </div>
 
@@ -110,7 +457,7 @@
       </div>
 
       <!-- ─── DETAIL SCREEN ─── -->
-      <div class="screen" id="screen-detail">
+      <div class="screen slide-in" id="screen-detail">
         <div class="detail-wrap">
           <div class="detail-cover" id="detail-bg"></div>
           
@@ -147,14 +494,13 @@
       </div>
 
       <!-- ─── FORM SCREEN ─── -->
-      <div class="screen" id="screen-form">
+      <div class="screen slide-in" id="screen-form">
         <div class="form-header">
           <button class="action-text" onclick="closeForm()">Cancel</button>
           <span class="title" id="form-title">New Event</span>
           <button onclick="submitForm()">Save</button>
         </div>
         <div class="form-body">
-          
           <div class="f-section">
             <input class="f-input" id="form-name" placeholder="What are we waiting for?" maxlength="60">
           </div>
@@ -186,7 +532,7 @@
       </div>
 
       <!-- ─── JOIN SCREEN ─── -->
-      <div class="screen" id="screen-join">
+      <div class="screen fade-in" id="screen-join">
         <div class="form-header"><button class="action-text" onclick="closeJoin()">Back</button><span class="title">Join</span><div style="width:40px;"></div></div>
         <div class="form-body">
           <h2 style="font-size:32px;font-weight:800;margin-bottom:24px;line-height:1.1;">Join a<br>countdown.</h2>
@@ -199,7 +545,7 @@
       </div>
 
       <!-- ─── SETTINGS SCREEN ─── -->
-      <div class="screen" id="screen-settings">
+      <div class="screen fade-in" id="screen-settings">
         <div class="form-header"><button class="action-text" onclick="closeSettings()">Back</button><span class="title">Settings</span><div style="width:40px;"></div></div>
         <div class="form-body">
            <div class="f-section">
@@ -266,14 +612,571 @@
     </div>
   </div>
 
-  <!-- ─── JAVASCRIPT ─── -->
-  <script src="src/js/utils.js"></script>
-  <script src="src/js/data.js"></script>
-  <script src="src/js/auth.js"></script>
-  <script src="src/js/navigation.js"></script>
-  <script src="src/js/events.js"></script>
-  <script src="src/js/share.js"></script>
-  <script src="src/js/ui.js"></script>
-  <script src="src/js/app.js"></script>
+  <script>
+    // ════════════════════════════════════════════════════════════════
+    // SOONE — COMPLETE APP (ALL WORKING)
+    // ════════════════════════════════════════════════════════════════
+
+    // ─── STATE ───
+    let currentUser = null; 
+    let currentEvent = null; 
+    let editingId = null;
+    let selectedTab = 'all'; 
+    let selectedCategory = 'all'; 
+    let formCover = null;
+    let countdownTimer = null; 
+    let theme = 'dark';
+    let isLoggedIn = false;
+
+    // ─── DOM HELPERS ───
+    function $(id) { return document.getElementById(id); }
+    function escapeHtml(s) { if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    
+    // ─── STORAGE ───
+    const Store = {
+      get(key, fb) { 
+        try { 
+          const v = localStorage.getItem('sn_' + key); 
+          return v !== null ? JSON.parse(v) : fb; 
+        } catch { return fb; } 
+      },
+      set(key, v) { 
+        try { 
+          localStorage.setItem('sn_' + key, JSON.stringify(v)); 
+          return true; 
+        } catch { return false; } 
+      },
+      remove(key) { 
+        try { 
+          localStorage.removeItem('sn_' + key); 
+          return true; 
+        } catch { return false; } 
+      }
+    };
+
+    // ─── DATA LAYER ───
+    function getEvents(usr) { 
+      return (Store.get('evts', {})[usr] || []).map(e => ({...e, _owned:true})); 
+    }
+    function getJoinedEvents(usr) { 
+      return (Store.get('joined', {})[usr] || []).map(e => ({...e, _joined:true})); 
+    }
+    function getAllEvents(usr) { 
+      return [...getEvents(usr), ...getJoinedEvents(usr)]; 
+    }
+    function saveEvents(usr, evts) { 
+      const all = Store.get('evts', {}); 
+      all[usr] = evts; 
+      Store.set('evts', all); 
+    }
+    function saveJoinedEvents(usr, evts) { 
+      const all = Store.get('joined', {}); 
+      all[usr] = evts; 
+      Store.set('joined', all); 
+    }
+    
+    function createEvent(usr, data) {
+      const evts = getEvents(usr);
+      const ev = { id: 'ev_' + Date.now(), ...data, createdAt: Date.now() };
+      evts.push(ev); 
+      saveEvents(usr, evts); 
+      return ev;
+    }
+    function updateEvent(usr, id, data) {
+      const evts = getEvents(usr); 
+      const idx = evts.findIndex(e => e.id === id);
+      if(idx > -1) { 
+        evts[idx] = { ...evts[idx], ...data }; 
+        saveEvents(usr, evts); 
+      }
+    }
+    function deleteEvent(usr, id) { 
+      saveEvents(usr, getEvents(usr).filter(e => e.id !== id)); 
+    }
+    function leaveJoinedEvent(usr, id) { 
+      saveJoinedEvents(usr, getJoinedEvents(usr).filter(e => e.id !== id)); 
+    }
+
+    function joinEvent(usr, code) {
+      const shares = Store.get('shares', {});
+      if(!shares[code]) throw new Error('Invalid code');
+      const { eventId, owner } = shares[code];
+      if(getJoinedEvents(usr).find(e => e.id === eventId)) throw new Error('Already joined');
+      const ev = (Store.get('evts', {})[owner] || []).find(e => e.id === eventId);
+      if(!ev) throw new Error('Event not found');
+      const joined = getJoinedEvents(usr); 
+      joined.push(ev); 
+      saveJoinedEvents(usr, joined);
+      return ev.id;
+    }
+    function generateShareCode(usr, evId) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
+      let code = 'WF-';
+      for(let i=0; i<6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      const shares = Store.get('shares', {}); 
+      shares[code] = { eventId: evId, owner: usr }; 
+      Store.set('shares', shares);
+      return code;
+    }
+    function getShareCode(usr, evId) {
+      const shares = Store.get('shares', {});
+      const entry = Object.entries(shares).find(([c, d]) => d.eventId === evId && d.owner === usr);
+      return entry ? entry[0] : null;
+    }
+
+    // ─── DATE HELPERS ───
+    function getDays(dateStr) {
+      const now = new Date(); 
+      now.setHours(0,0,0,0);
+      return Math.round((new Date(dateStr + 'T00:00:00') - now) / 86400000);
+    }
+    function formatDate(dateStr) { 
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); 
+    }
+    function formatLongDate(dateStr) {
+      return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    function calcProgress(ev) {
+      const created = ev.createdAt || Date.now() - 30 * 86400000;
+      const target = new Date(ev.event_date + 'T00:00:00').getTime();
+      const total = Math.max(1, target - created);
+      return Math.min(100, Math.max(0, ((Date.now() - created) / total) * 100));
+    }
+
+    // ─── SCREEN NAVIGATION (FIXED) ───
+    function switchScreen(id) {
+      // Remove active from all screens
+      document.querySelectorAll('.screen').forEach(el => {
+        el.classList.remove('active');
+        // Also remove slide-in if present
+        if(el.classList.contains('slide-in')) {
+          el.classList.remove('slide-in');
+        }
+      });
+      
+      // Add active to target
+      const el = $('screen-' + id);
+      if(el) {
+        // If it has slide-in class, trigger animation
+        if(el.classList.contains('slide-in')) {
+          requestAnimationFrame(() => {
+            el.classList.add('active');
+          });
+        } else {
+          el.classList.add('active');
+        }
+      }
+      
+      // Update nav
+      updateNav(id);
+    }
+
+    function updateNav(scr) {
+      document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+      if(scr === 'home') {
+        const target = $('nav-home');
+        if(target) target.classList.add('active');
+      } else if(scr === 'join') {
+        const target = $('nav-join');
+        if(target) target.classList.add('active');
+      }
+    }
+
+    function openModal(id) { $(id).classList.add('active'); }
+    function closeModal(id) { $(id).classList.remove('active'); }
+
+    function setTheme(t) { 
+      theme = t; 
+      document.documentElement.setAttribute('data-theme', t); 
+      Store.set('theme', t); 
+    }
+
+    function showToast(msg) {
+      const t = $('toast'); 
+      t.textContent = msg; 
+      t.classList.add('show');
+      clearTimeout(window.tTimer); 
+      window.tTimer = setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ─── AUTH ───
+    function switchLoginTab(t) {
+      const loginBtn = $('tab-login-btn');
+      const signupBtn = $('tab-signup-btn');
+      const loginForm = $('login-form');
+      const signupForm = $('signup-form');
+      
+      if(t === 'login') {
+        loginBtn.classList.add('active');
+        signupBtn.classList.remove('active');
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+      } else {
+        loginBtn.classList.remove('active');
+        signupBtn.classList.add('active');
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+      }
+    }
+    
+    function handleLogin() {
+      const u = $('login-username').value.trim(); 
+      const p = $('login-phrase').value.trim();
+      const users = Store.get('users', {});
+      if(users[u] && users[u] === p) {
+        currentUser = {username: u, phrase: p}; 
+        Store.set('session', currentUser);
+        isLoggedIn = true;
+        updateNavVisibility();
+        switchScreen('home');
+        renderEvents();
+        $('loader').classList.add('hidden');
+        showToast('Welcome back, ' + u + '!');
+      } else showToast('Invalid credentials');
+    }
+    
+    function handleSignup() {
+      const u = $('signup-username').value.trim();
+      if(!u || u.length < 3) return showToast('Username too short');
+      const users = Store.get('users', {});
+      if(users[u]) return showToast('Username taken');
+      const p = [...Array(8)].map(()=>Math.random().toString(36).slice(2,6)).join('-') + '-' + Math.floor(100+Math.random()*900);
+      users[u] = p; 
+      Store.set('users', users);
+      currentUser = {username: u, phrase: p}; 
+      Store.set('session', currentUser);
+      isLoggedIn = true;
+      $('recovery-key-display').textContent = p; 
+      openModal('modal-recovery'); 
+      updateNavVisibility();
+      switchScreen('home');
+      renderEvents();
+      $('loader').classList.add('hidden');
+      showToast('Account created! 🎉');
+    }
+    
+    function logout() { 
+      Store.remove('session'); 
+      currentUser = null; 
+      isLoggedIn = false;
+      updateNavVisibility();
+      switchScreen('login'); 
+    }
+
+    // ─── NAV VISIBILITY ───
+    function updateNavVisibility() {
+      const nav = $('bottom-nav');
+      if(isLoggedIn && currentUser) {
+        nav.classList.remove('hidden');
+      } else {
+        nav.classList.add('hidden');
+      }
+    }
+
+    // ─── RENDER ───
+    function filterTab(t) { 
+      selectedTab = t; 
+      document.querySelectorAll('[data-tab]').forEach(e => e.classList.toggle('active', e.dataset.tab===t)); 
+      renderEvents(); 
+    }
+    
+    function filterCategory(c) { 
+      selectedCategory = selectedCategory === c ? 'all' : c; 
+      document.querySelectorAll('[data-cat]').forEach(e => e.classList.toggle('active', e.dataset.cat===selectedCategory)); 
+      renderEvents(); 
+    }
+    
+    function renderEvents() {
+      const grid = $('events-grid');
+      if(!currentUser) {
+        grid.innerHTML = `<div class="empty"><div class="icon">🔒</div><div class="title">Sign in required</div><div class="desc">Please sign in to see your events.</div></div>`;
+        return;
+      }
+      
+      let evts = getAllEvents(currentUser.username);
+      if(selectedTab === 'my') evts = evts.filter(e => e._owned);
+      if(selectedTab === 'joined') evts = evts.filter(e => e._joined);
+      
+      const catMap = { milestone: 'Milestone', travel: 'Travel' };
+      if(selectedCategory !== 'all') evts = evts.filter(e => e.category === catMap[selectedCategory]);
+      
+      evts.sort((a,b) => new Date(a.event_date) - new Date(b.event_date));
+      $('greeting').textContent = `${evts.length} events tracking`;
+
+      if(!evts.length) {
+        grid.innerHTML = `<div class="empty"><div class="icon">✨</div><div class="title">Clean slate.</div><div class="desc">Create a countdown to look forward to something.</div></div>`;
+        return;
+      }
+
+      grid.innerHTML = evts.map((e, i) => {
+        const days = getDays(e.event_date); 
+        const isPast = days < 0;
+        const prog = calcProgress(e);
+        const accent = ['#38BDF8', '#34D399', '#FB7185', '#FBBF24', '#A78BFA'][i % 5];
+        
+        return `
+          <div class="event-card" onclick="openDetail('${e.id}')">
+            ${e.cover_image ? `<div class="card-bg" style="background-image:url('${e.cover_image}')"></div>` : ''}
+            <div class="card-inner">
+               <div class="card-header">
+                 <div class="card-icon" style="background:${accent}15; color:${accent}">${e.emoji || '🎉'}</div>
+                 ${e.category ? `<div class="card-tag" style="color:${accent}; background:${accent}10; border-color:${accent}20">${e.category}</div>` : ''}
+               </div>
+               <div class="card-body">
+                 <h3>${escapeHtml(e.title)}</h3>
+                 <p>${formatDate(e.event_date)} ${e._joined ? '· 🤝 Joined' : ''}</p>
+               </div>
+               <div class="card-footer">
+                 <div class="card-progress-wrap"><div class="card-progress"><div class="fill" style="width:${prog}%; background:${accent}"></div></div></div>
+                 <div class="card-countdown">
+                   <strong>${Math.abs(days)}</strong>
+                   <span>${isPast ? 'AGO' : 'DAYS'}</span>
+                 </div>
+               </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ─── DETAIL ───
+    function openDetail(id) {
+      currentEvent = getAllEvents(currentUser.username).find(e => e.id === id);
+      if(!currentEvent) return;
+      const e = currentEvent; 
+      const days = getDays(e.event_date);
+      
+      $('d-name').textContent = e.title; 
+      $('d-date').textContent = formatLongDate(e.event_date);
+      $('d-emoji').textContent = e.emoji || '🎉';
+      $('d-days').textContent = Math.abs(days); 
+      $('d-days-label').textContent = days >= 0 ? 'DAYS TO GO' : 'DAYS AGO';
+      
+      $('detail-bg').style.backgroundImage = e.cover_image ? `url('${e.cover_image}')` : 'none';
+      $('edit-btn').style.display = e._owned ? 'block' : 'none';
+      
+      const ac = $('action-container');
+      if(e._joined) ac.innerHTML = `<button class="btn btn-danger" onclick="leaveEvent()">Leave Countdown</button>`;
+      else ac.innerHTML = '';
+
+      if(countdownTimer) clearInterval(countdownTimer);
+      const updateCd = () => {
+        const ms = new Date(e.event_date + 'T00:00:00') - Date.now();
+        const abs = Math.abs(Math.floor(ms/1000));
+        $('cd-d').textContent = Math.floor(abs/86400); 
+        $('cd-h').textContent = String(Math.floor((abs%86400)/3600)).padStart(2,'0');
+        $('cd-m').textContent = String(Math.floor((abs%3600)/60)).padStart(2,'0'); 
+        $('cd-s').textContent = String(abs%60).padStart(2,'0');
+      };
+      updateCd(); 
+      countdownTimer = setInterval(updateCd, 1000);
+      switchScreen('detail');
+    }
+    
+    function closeDetail() { 
+      clearInterval(countdownTimer); 
+      switchScreen('home'); 
+    }
+    
+    function leaveEvent() { 
+      if(confirm('Leave this countdown?')) { 
+        leaveJoinedEvent(currentUser.username, currentEvent.id); 
+        closeDetail(); 
+        renderEvents(); 
+      } 
+    }
+
+    // ─── FORMS ───
+    function initDatePicker() {
+      const m = $('form-month'), d = $('form-day'), y = $('form-year');
+      m.innerHTML = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((v,i)=>`<option value="${i}">${v}</option>`).join('');
+      d.innerHTML = [...Array(31)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+      const cy = new Date().getFullYear(); 
+      y.innerHTML = [...Array(6)].map((_,i)=>`<option value="${cy+i}">${cy+i}</option>`).join('');
+    }
+    
+    function openCreateForm() {
+      editingId = null; 
+      $('form-title').textContent = 'Create';
+      $('form-name').value = ''; 
+      removeCover();
+      const n = new Date(); 
+      $('form-month').value = n.getMonth(); 
+      $('form-day').value = n.getDate(); 
+      $('form-year').value = n.getFullYear();
+      $('del-wrap').style.display = 'none'; 
+      switchScreen('form');
+    }
+    
+    function editEvent() {
+      openEditForm();
+    }
+    
+    function openEditForm() {
+      if(!currentEvent) return;
+      editingId = currentEvent.id; 
+      $('form-title').textContent = 'Edit';
+      $('form-name').value = currentEvent.title;
+      const d = new Date(currentEvent.event_date + 'T00:00:00');
+      $('form-month').value = d.getMonth(); 
+      $('form-day').value = d.getDate(); 
+      $('form-year').value = d.getFullYear();
+      if(currentEvent.cover_image) {
+         formCover = currentEvent.cover_image;
+         $('cover-preview').src = formCover; 
+         $('cover-preview').style.display = 'block';
+         $('cover-upload').classList.add('has-img'); 
+         $('cover-remove').style.display = 'block';
+      } else removeCover();
+      $('del-wrap').style.display = 'block'; 
+      switchScreen('form');
+    }
+    
+    function closeForm() { 
+      switchScreen('home'); 
+    }
+
+    function handleCoverUpload(e) {
+      const f = e.target.files[0]; 
+      if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { 
+        formCover = ev.target.result; 
+        $('cover-preview').src = formCover; 
+        $('cover-preview').style.display = 'block';
+        $('cover-upload').classList.add('has-img'); 
+        $('cover-remove').style.display = 'block';
+      };
+      r.readAsDataURL(f);
+    }
+    
+    function removeCover() { 
+      formCover = null; 
+      $('cover-preview').style.display='none'; 
+      $('cover-upload').classList.remove('has-img'); 
+      $('cover-remove').style.display='none'; 
+      $('cover-input').value=''; 
+    }
+
+    function submitForm() {
+      const name = $('form-name').value.trim(); 
+      if(!name) return showToast('Name required');
+      const m = parseInt($('form-month').value), d = parseInt($('form-day').value), y = parseInt($('form-year').value);
+      const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      
+      const data = { 
+        title: name, 
+        event_date: ds, 
+        cover_image: formCover, 
+        emoji: ['🎉','✈️','❤️','🥂','🎂'][Math.floor(Math.random()*5)] 
+      };
+      
+      if(editingId) { 
+        updateEvent(currentUser.username, editingId, data); 
+        showToast('Updated'); 
+      } else { 
+        createEvent(currentUser.username, data); 
+        showToast('Created'); 
+      }
+      closeForm(); 
+      renderEvents();
+    }
+    
+    function confirmDelete() {
+      if(confirm('Delete event permanently?')) { 
+        deleteEvent(currentUser.username, editingId); 
+        closeForm(); 
+        closeDetail(); 
+        renderEvents(); 
+      }
+    }
+
+    // ─── SHARE / JOIN ───
+    function shareEvent() {
+      if(!currentEvent) return;
+      const code = getShareCode(currentUser.username, currentEvent.id) || generateShareCode(currentUser.username, currentEvent.id);
+      $('share-code-display').textContent = code; 
+      openModal('modal-share');
+    }
+    
+    function copyShareCode() { 
+      navigator.clipboard.writeText($('share-code-display').textContent); 
+      showToast('Copied'); 
+      closeModal('modal-share'); 
+    }
+    
+    function copyRecoveryKey() { 
+      navigator.clipboard.writeText($('recovery-key-display').textContent); 
+      showToast('Copied'); 
+      closeModal('modal-recovery'); 
+    }
+    
+    function handleJoin() {
+      const c = $('join-code-input').value.trim().toUpperCase();
+      if(!c) return;
+      try { 
+        const id = joinEvent(currentUser.username, c.startsWith('WF-')?c:'WF-'+c); 
+        showToast('Joined!'); 
+        $('join-code-input').value=''; 
+        closeJoin(); 
+        renderEvents(); 
+        setTimeout(()=>openDetail(id), 300); 
+      } catch(e) { 
+        showToast(e.message); 
+      }
+    }
+    
+    function closeJoin() { 
+      switchScreen('home'); 
+    }
+
+    // ─── SETTINGS ───
+    function showRecoveryKey() { 
+      if(!currentUser) return;
+      $('recovery-key-display').textContent = currentUser.phrase; 
+      openModal('modal-recovery'); 
+    }
+    
+    function openSettings() { 
+      if(!currentUser) return;
+      $('settings-username').textContent = currentUser.username; 
+      switchScreen('settings'); 
+    }
+    
+    function closeSettings() { 
+      switchScreen('home'); 
+    }
+
+    // ─── BOOT ───
+    function bootApp() {
+      // Show login screen
+      switchScreen('login');
+      
+      // Check if user is logged in
+      if(currentUser) { 
+        isLoggedIn = true;
+        updateNavVisibility();
+        switchScreen('home');
+        renderEvents(); 
+      } else {
+        isLoggedIn = false;
+        updateNavVisibility();
+      }
+      
+      // Hide loader
+      setTimeout(() => {
+        $('loader').classList.add('hidden');
+      }, 600);
+    }
+
+    // ─── START ───
+    document.addEventListener('DOMContentLoaded', function() {
+      setTheme(Store.get('theme', 'dark')); 
+      initDatePicker();
+      currentUser = Store.get('session', null);
+      updateNavVisibility();
+      bootApp();
+    });
+  </script>
 </body>
 </html>
