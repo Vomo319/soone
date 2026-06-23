@@ -1,6 +1,0 @@
-{
-  "name": "soone",
-  "version": "2.0.0",
-  "description": "Countdown app — track what matters",
-  "scripts": {"deploy": "vercel --prod"}
-}
